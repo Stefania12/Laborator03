@@ -1,7 +1,13 @@
 package ro.pub.cs.systems.eim.lab03.phonedialer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -26,7 +32,9 @@ public class PhoneDialerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_dialer);
 
-        ((EditText)findViewById(R.id.phone_number_edit_text)).setInputType(InputType.TYPE_NULL);
+        EditText phoneNumberEditText = findViewById(R.id.phone_number_edit_text);
+
+        phoneNumberEditText.setInputType(InputType.TYPE_NULL);
 
         List<Integer> numberButtonsIdList = Arrays.asList(
             R.id.button1, R.id.button2, R.id.button3,
@@ -41,7 +49,6 @@ public class PhoneDialerActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.delete_image_button).setOnClickListener((v) -> {
-            EditText phoneNumberEditText = findViewById(R.id.phone_number_edit_text);
             int textLength = phoneNumberEditText.getText().length();
 
             if (textLength > 0) {
@@ -49,6 +56,19 @@ public class PhoneDialerActivity extends AppCompatActivity {
             }
         });
 
-        
+        findViewById(R.id.call_image_button).setOnClickListener((v) -> {
+            if (ContextCompat.checkSelfPermission(PhoneDialerActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        PhoneDialerActivity.this,
+                        new String[]{Manifest.permission.CALL_PHONE},
+                        Constants.PERMISSION_REQUEST_CALL_PHONE);
+            } else {
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(Uri.parse("tel:" + phoneNumberEditText.getText().toString()));
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.hangup_image_button).setOnClickListener((v) -> this.finish());
     }
 }
